@@ -46,7 +46,7 @@ ops = {
 }
 
 programs = {
-    "documents": r"D:",
+    "documents": r"D:"
 }
 
 r = sr.Recognizer()
