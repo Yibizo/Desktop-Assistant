@@ -1,20 +1,11 @@
 import speech_recognition as sr
 import winsound as ws
 import webbrowser as wb
-import os, sys, datetime, ctypes, time, pyttsx3
-os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
-import pygame
+import os, sys, datetime, ctypes, time
 from datetime import timezone,tzinfo,timedelta
+from playsound import playsound
 
-engine = pyttsx3.init()
-rate = 170
-engine.setProperty('rate',rate)
-volume = engine.getProperty('volume')
-engine.setProperty('volume',0.8)
-
-def say(text):
-    engine.say(text)
-    engine.runAndWait()
+from dicts import *
 
 def google_search(search):
     voiceOutput = ""
@@ -28,11 +19,11 @@ def google_search(search):
             voiceOutput += " "
     action = "searching on"
     if command == "search":
-        say(f"{action} google: {voiceOutput}")
+        append_text_to_file(f"{action} google: {voiceOutput}")
     elif command == "youtube":
-        say(f"{action} youtube: {voiceOutput}")
+        append_text_to_file(f"{action} youtube: {voiceOutput}")
     elif command == "map":
-        say(f"{action} google maps: {voiceOutput}")
+        append_text_to_file(f"{action} google maps: {voiceOutput}")
     print(search)
     wb.open_new_tab(search)
 
@@ -49,7 +40,7 @@ def create_program(textList):
     return program
 
 def open_program(program):
-    say(f"opening now")
+    append_text_to_file("opening now")
     os.startfile(program)
     time.sleep(2)
     user32 = ctypes.WinDLL('user32')
@@ -64,18 +55,12 @@ def get_datetime(date_time):
     else:
         newDateTime = currentDate.strftime("%I:%M %p")
     print(f"It is {newDateTime}")
-    say(f"It is {newDateTime}")
+    append_text_to_file(f"It is {newDateTime}")
 
-ops = {
-    "+": lambda x,y: x+y,
-    "-": lambda x,y: x-y,
-    "*": lambda x,y: x*y,
-    "/": lambda x,y: x/y
-}
-
-programs = {
-    "documents": r"D:"
-}
+def append_text_to_file(text):
+    file = open("desk_text.txt","a")
+    file.write(text)
+    file.close()
 
 r = sr.Recognizer()
 counter = 1
@@ -91,7 +76,7 @@ with sr.Microphone() as source:
             print(f"You said: {text}")
             if "computer" in text:
                 print("in")
-                say("Yes?")
+                append_text_to_file("Yes user?")
                 print("Say anything: ")
                 audio = r.listen(source,phrase_time_limit=5)
 
@@ -99,10 +84,6 @@ with sr.Microphone() as source:
                     audioText = r.recognize_google(audio)
                     text = audioText.lower()
                     print(f"You said: {text}")
-                    file = open("desk_text.txt","a")
-                    list = [text]
-                    file.writelines(list)
-                    file.close()
 
                     textList = text.split()
 
@@ -122,7 +103,7 @@ with sr.Microphone() as source:
 
                     elif command == "youtube":
                         if textList[1] == "subscriptions" and len(textList) == 2:
-                            say("opening youtube subscriptions")
+                            append_text_to_file("opening youtube subscriptions")
                             wb.open("https://www.youtube.com/feed/subscriptions")
                         else:
                             google_search("https://www.youtube.com/results?search_query=")
